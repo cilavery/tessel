@@ -1,6 +1,6 @@
 var tessel = require('tessel');
 var servolib = require('servo-pca9685');
-
+var fs = require('fs');
 var servo = servolib.use(tessel.port['A']);
 
 var servo1 = 1; // We have a servo plugged in at position 1
@@ -18,32 +18,38 @@ const camera = new av.Camera({
   width: 320,
   height: 240,
 });
+const capture = camera.capture();
 
 
-
-server.listen(port, function () {
+server.listen(port, function() {
   console.log(`http://${os.hostname()}.local:${port}`);
 });
 
 app.use(express.static(path.join(__dirname, '/public')));
-app.get('/stream', (request, response, next) => {
+app.get('/', (request, response, next) => {
+  console.log('camera url', camera.url);
   response.redirect(camera.url);
 });
 
+// capture.on('data', function(data) {
+//   fs.writeFile(path.join(__dirname, 'captures/captured-via-data-event.jpg'), data, (err) => {
+//     if (err) throw err;
+//     console.log('The file has been saved!');
+//   });
+// });
 
 
-
-servo.on('ready', function () {
-  var position = 0;  //  Target position of the servo between 0 (min) and 1 (max).
+servo.on('ready', function() {
+  var position = 0; //  Target position of the servo between 0 (min) and 1 (max).
   var direction = 1;
   //  Set the minimum and maximum duty cycle for servo 1.
   //  If the servo doesn't move to its full extent or stalls out
   //  and gets hot, try tuning these values (0.05 and 0.12).
   //  Moving them towards each other = less movement range
   //  Moving them apart = more range, more likely to stall and burn out
-  servo.configure(servo1, 0.05, 0.12, function () {
-    setInterval(function () {
-      console.log('Position (in range 0-1):', position);
+  servo.configure(servo1, 0.05, 0.12, function() {
+    setInterval(function() {
+      // console.log('Position (in range 0-1):', position);
       //  Set servo #1 to position pos.
       servo.move(servo1, position);
 
@@ -56,5 +62,3 @@ servo.on('ready', function () {
     }, 1000); // Every 500 milliseconds
   });
 });
-
-
