@@ -20,3 +20,5 @@ app.use(express.static(path.join(__dirname, '/public')));
 app.get('/stream', (request, response, next) => {
   response.redirect(camera.url);
 });
+
+module.exports = camera
